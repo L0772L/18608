@@ -3,24 +3,24 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 高位 A B C 直接设为 0
+    // A, B, C 固定为 0
     Or(a=false, b=false, out=A);
     Or(a=false, b=false, out=B);
     Or(a=false, b=false, out=C);
 
-    // 当前 D 位的存储器
+    // 用 Bit 存储最低位 D
     Bit(in=d_input, out=d_current, load=d_load);
 
-    // 计算 d_next = D xor inc
+    // D xor inc → d_xor
     Xor(a=d_current, b=inc, out=d_xor);
 
-    // 如果 reset = 1，d_input = 0；否则 d_input = d_xor
+    // reset 为 1 时输出 0，否则输出 d_xor
     Mux(a=d_xor, b=false, sel=reset, out=d_input);
 
-    // load = inc 或 reset
+    // load = inc or reset
     Or(a=inc, b=reset, out=d_load);
 
-    // 输出 D
-    Or(a=d_current, b=false, out=D);  // 只为了让 D 是独立 pin，合法输出
+    // 最终输出 D
+    Or(a=d_current, b=false, out=D);
 }
 
