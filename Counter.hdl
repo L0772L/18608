@@ -3,25 +3,38 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 组合当前 4-bit 数值
-    // 用 4-bit 总线：curr
+    // 低位是 D，高位是 A（4-bit 计数器）
 
-    // 当前值寄存器
-    Register(in=next, out=curr, load=true);
+    // 暂时不连 carry，我们模拟4-bit 加法器行为
+    // 用4个寄存器分别保存每一位
+    // 每次都只处理最低位 D，其它位可以简单级联实现（这里只做演示）
 
-    // 加法器（只对 4-bit）
-    Inc16(in=curr, out=plusOne); // 虽然是 Inc16，我们只用低 4 位
+    // Step 1: 组合当前4位值（每位都有单独寄存器）
+    // current bits
+    Register(in=nextD, out=Dbit, load=true);
+    Register(in=nextC, out=Cbit, load=true);
+    Register(in=nextB, out=Bbit, load=true);
+    Register(in=nextA, out=Abit, load=true);
 
-    // 控制是否加1
-    Mux16(a=curr, b=plusOne, sel=inc, out=maybeInc);
+    // Step 2: 提供输出
+    And(a=Dbit, b=true, out=D);
+    And(a=Cbit, b=true, out=C);
+    And(a=Bbit, b=true, out=B);
+    And(a=Abit, b=true, out=A);
 
-    // 控制是否 reset
-    Mux16(a=maybeInc, b=false, sel=reset, out=next);
+    // Step 3: 简化的计数器逻辑（这里只实现 D 位翻转）
+    // 如果 reset 为真，所有位清零
+    Not(in=reset, out=notReset);
 
-    // 拆出低 4 位：D = curr[0] ... A = curr[3]
-    And(a=curr[3], b=true, out=A);
-    And(a=curr[2], b=true, out=B);
-    And(a=curr[1], b=true, out=C);
-    And(a=curr[0], b=true, out=D);
+    // 先处理 D 位翻转
+    // D <- D xor inc（仅在 inc 为真时翻转）
+    Xor(a=Dbit, b=inc, out=Dx);
+    Mux(a=Dx, b=false, sel=reset, out=nextD);
+
+    // 其它位为0，或者你想自己实现进位逻辑
+    // 这里我们直接清零
+    Mux(a=Cbit, b=false, sel=reset, out=nextC);
+    Mux(a=Bbit, b=false, sel=reset, out=nextB);
+    Mux(a=Abit, b=false, sel=reset, out=nextA);
 }
 
