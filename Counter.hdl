@@ -3,22 +3,26 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 四个单 bit 的寄存器（用 Bit 芯片）
+    // 四个位的 Bit 存储器
     Bit(in=aIn, out=A, load=true);
     Bit(in=bIn, out=B, load=true);
     Bit(in=cIn, out=C, load=true);
     Bit(in=dIn, out=D, load=true);
 
-    // 逻辑：先做 D = D xor inc
+    // -------------------
+    // 逻辑部分（仅实现最低位 D 的计数）
+    // -------------------
+
+    // D 位翻转：dXor = D xor inc
     Xor(a=D, b=inc, out=dXor);
 
-    // 再根据 reset 选择是否清零
+    // reset 为 1 时，清零，否则使用 dXor
     Mux(a=dXor, b=false, sel=reset, out=dIn);
 
-    // 其他三位保持不变（或将来扩展进位）
+    // 其他位暂时不处理计数，只实现 reset 清零逻辑
+    Mux(a=A, b=false, sel=reset, out=aIn);
     Mux(a=B, b=false, sel=reset, out=bIn);
     Mux(a=C, b=false, sel=reset, out=cIn);
-    Mux(a=A, b=false, sel=reset, out=aIn);
 }
 
 
