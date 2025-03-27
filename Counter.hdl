@@ -3,21 +3,30 @@ CHIP Counter {
     OUT out[16], A, B, C, D;
 
     PARTS:
-    // 使用 internalOut 保存 Register 输出
+    // 当前计数值
     Register(in=next, out=internalOut, load=true);
-
-    // 将其转发给顶层输出 out
     And16(a=internalOut, b=true, out=out);
 
-    // 运算逻辑
+    // 计数逻辑
     Inc16(in=internalOut, out=plusOne);
     Mux16(a=internalOut, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 提取 A~D（只允许对 out 取子位，internalOut 不可以！）
-    And(a=out[3], b=true, out=A);
-    And(a=out[2], b=true, out=B);
-    And(a=out[1], b=true, out=C);
-    And(a=out[0], b=true, out=D);
+    // 掩码取位：构造掩码，然后提取每个位
+    // 第3位（A）
+    And16(a=internalOut, b=0000000000001000, out=aBus);
+    Or16Way(in=aBus, out=A);
+
+    // 第2位（B）
+    And16(a=internalOut, b=0000000000000100, out=bBus);
+    Or16Way(in=bBus, out=B);
+
+    // 第1位（C）
+    And16(a=internalOut, b=0000000000000010, out=cBus);
+    Or16Way(in=cBus, out=C);
+
+    // 第0位（D）
+    And16(a=internalOut, b=0000000000000001, out=dBus);
+    Or16Way(in=dBus, out=D);
 }
 
