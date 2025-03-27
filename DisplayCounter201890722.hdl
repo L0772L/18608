@@ -3,11 +3,18 @@ CHIP DisplayCounter201890722 {
     OUT a, b, c, d, e, f, g;
 
     PARTS:
-    Counter(inc=inc, reset=reset, out=counterOut);
+    // 获取计数器输出（16位）
+    Counter(inc=inc, reset=reset, out=fullOut);
 
+    // 提取低4位为单独变量
+    And(a=fullOut[0], b=true, out=D);
+    And(a=fullOut[1], b=true, out=C);
+    And(a=fullOut[2], b=true, out=B);
+    And(a=fullOut[3], b=true, out=A);
+
+    // 送入你写的 Decoder201890722
     Decoder201890722(
-        A=counterOut[3], B=counterOut[2],
-        C=counterOut[1], D=counterOut[0],
+        A=A, B=B, C=C, D=D,
         a=a, b=b, c=c, d=d, e=e, f=f, g=g
     );
 }
