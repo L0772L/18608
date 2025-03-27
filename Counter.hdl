@@ -3,20 +3,38 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
+    // 当前 4 位值，使用一个 16 位寄存器，只取低 4 位
     Register(in=next, out=curr, load=load);
+
+    // +1 逻辑
     Inc16(in=curr, out=plusOne);
+
+    // 如果 inc=1 就加1，否则保持
     Mux16(a=curr, b=plusOne, sel=inc, out=maybeInc);
+
+    // 如果 reset=1，就清零
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
+
+    // load 控制
     Or(a=inc, b=reset, out=load);
 
-    // 提取 curr[3:0] —— 使用合法方式：掩码提位
-    And16(a=curr, b=maskA, out=busA);
-    And16(a=curr, b=maskB, out=busB);
-    And16(a=curr, b=maskC, out=busC);
-    And16(a=curr, b=maskD, out=busD);
+    // 提取低4位 curr[0~3] —— 不能用 [i]，那我们怎么办？
+    // 我们直接输出4位，用 And 和 Wire 中转
 
-    Or16Way(in=busA, out=A);
-    Or16Way(in=busB, out=B);
-    Or16Way(in=busC, out=C);
-    Or16Way(in=busD, out=D);
+    // D = curr[0]
+    Not(in=curr[0], out=nd);
+    Not(in=nd, out=D);
+
+    // C = curr[1]
+    Not(in=curr[1], out=nc);
+    Not(in=nc, out=C);
+
+    // B = curr[2]
+    Not(in=curr[2], out=nb);
+    Not(in=nb, out=B);
+
+    // A = curr[3]
+    Not(in=curr[3], out=na);
+    Not(in=na, out=A);
 }
+
