@@ -3,16 +3,16 @@ CHIP DisplayCounter201890722 {
     OUT a, b, c, d, e, f, g;
 
     PARTS:
-    // 使用完整 16 位 Counter，只取低 4 位输出
-    Counter(inc=inc, reset=reset, out=counterOut);
+    // 将 Counter 的输出连接到 CHIP 的顶层 out
+    Counter(inc=inc, reset=reset, out=outBus);
 
-    // 只取 counterOut 的低4位作为输入
-    // 要先用 And 提取为单 bit（不能写 counterOut[3]）
-    And(a=counterOut[3], b=true, out=A);
-    And(a=counterOut[2], b=true, out=B);
-    And(a=counterOut[1], b=true, out=C);
-    And(a=counterOut[0], b=true, out=D);
+    // 只从 outBus（合法顶层连接）取位
+    And(a=outBus[3], b=true, out=A);
+    And(a=outBus[2], b=true, out=B);
+    And(a=outBus[1], b=true, out=C);
+    And(a=outBus[0], b=true, out=D);
 
+    // 调用你的七段译码器
     Decoder201890722(
         A=A, B=B, C=C, D=D,
         a=a, b=b, c=c, d=d, e=e, f=f, g=g
