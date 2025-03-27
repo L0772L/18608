@@ -1,19 +1,19 @@
 CHIP Counter {
     IN inc, reset;
-    OUT A, B, C, D;
+    OUT out[16], A, B, C, D;
 
     PARTS:
-    // 寄存器保存当前值
-    Register(in=next, out=intermediate, load=true);
+    // 直接输出寄存器内容到 out（顶层 pin，支持 [i]）
+    Register(in=next, out=out, load=true);
 
-    // 加法逻辑
-    Inc16(in=intermediate, out=plusOne);
-    Mux16(a=intermediate, b=plusOne, sel=inc, out=maybeInc);
+    // 运算逻辑使用 out 作为当前值
+    Inc16(in=out, out=plusOne);
+    Mux16(a=out, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 合法提取 A, B, C, D
-    And(a=intermediate[3], b=true, out=A);
-    And(a=intermediate[2], b=true, out=B);
-    And(a=intermediate[1], b=true, out=C);
-    And(a=intermediate[0], b=true, out=D);
+    // 安全提取 A, B, C, D —— out 是顶层输出 pin，可以位选
+    And(a=out[3], b=true, out=A);
+    And(a=out[2], b=true, out=B);
+    And(a=out[1], b=true, out=C);
+    And(a=out[0], b=true, out=D);
 }
