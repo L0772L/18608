@@ -1,22 +1,11 @@
 CHIP DisplayCounter201890722 {
     IN inc, reset;
-    OUT DigitA[7], DigitB[7];
+    OUT a, b, c, d, e, f, g;
 
     PARTS:
-    // 8位计数器，输出为 count0 ~ count7
     Counter(inc=inc, reset=reset,
-            out[0]=count0, out[1]=count1, out[2]=count2, out[3]=count3,
-            out[4]=count4, out[5]=count5, out[6]=count6, out[7]=count7);
+            out[0]=count0, out[1]=count1, out[2]=count2, out[3]=count3);
 
-    // 个位（低 4 位） -> DigitB
-    Decoder201890722(
-        A=count3, B=count2, C=count1, D=count0,
-        a=DigitB[0], b=DigitB[1], c=DigitB[2], d=DigitB[3],
-        e=DigitB[4], f=DigitB[5], g=DigitB[6]);
-
-    // 十位（高 4 位） -> DigitA
-    Decoder201890722(
-        A=count7, B=count6, C=count5, D=count4,
-        a=DigitA[0], b=DigitA[1], c=DigitA[2], d=DigitA[3],
-        e=DigitA[4], f=DigitA[5], g=DigitA[6]);
+    Decoder201890722(A=count3, B=count2, C=count1, D=count0,
+                     a=a, b=b, c=c, d=d, e=e, f=f, g=g);
 }
