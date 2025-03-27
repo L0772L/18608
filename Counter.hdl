@@ -1,22 +1,21 @@
 CHIP Counter {
     IN inc, reset;
-    OUT A, B, C, D;
+    OUT out[16], A, B, C, D;
 
     PARTS:
-    // 先创建一个完整寄存器输出
-    Register(in=next, out=full, load=true);
+    // 合法写法：Register 输出为 out，out 是 CHIP 输出 pin
+    Register(in=next, out=out, load=true);
 
-    // 进行加法逻辑
-    Inc16(in=full, out=plusOne);
-    Mux16(a=full, b=plusOne, sel=inc, out=maybeInc);
+    // 运算逻辑
+    Inc16(in=out, out=plusOne);
+    Mux16(a=out, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 提取单个位 —— 用 BitSelector 芯片替代 [i]
-    // HDL 不允许 [3]，但你可以用 BitSelector 模块（已内建）
-
-    Bit(in=full, sel=3, out=A);
-    Bit(in=full, sel=2, out=B);
-    Bit(in=full, sel=1, out=C);
-    Bit(in=full, sel=0, out=D);
+    // 从 out 拆出 A~D（out 是顶层输出 pin，合法）
+    And(a=out[3], b=true, out=A);
+    And(a=out[2], b=true, out=B);
+    And(a=out[1], b=true, out=C);
+    And(a=out[0], b=true, out=D);
 }
+
 
