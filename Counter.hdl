@@ -3,24 +3,38 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 高位恒为 0
-    Or(a=false, b=false, out=A);
-    Or(a=false, b=false, out=B);
-    Or(a=false, b=false, out=C);
+    // 用 Register 存储一个 16-bit 当前值
+    Register(in=next, out=curr, load=load);
 
-    // Bit 存储最低位 D
-    Bit(in=dInput, out=dCurrent, load=dLoad);
+    // 加法器（+1）
+    Inc16(in=curr, out=plusOne);
 
-    // D xor inc → dXor
-    Xor(a=dCurrent, b=inc, out=dXor);
+    // 如果 inc=1，则用加1结果；否则保持原样
+    Mux16(a=curr, b=plusOne, sel=inc, out=maybeInc);
 
-    // reset = 1 时，置 0；否则使用 xor 结果
-    Mux(a=dXor, b=false, sel=reset, out=dInput);
+    // 如果 reset=1，则清零；否则用 maybeInc
+    Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // load = inc 或 reset
-    Or(a=inc, b=reset, out=dLoad);
+    // load 每次都加载（或者 inc | reset）
+    Or(a=inc, b=reset, out=load);
 
-    // 输出 D
-    Or(a=dCurrent, b=false, out=D);
+    // 提取 A~D（curr 是内部变量，不能 curr[3]，所以用掩码）
+    // 用 And16 提取每个位 + Or16Way 压成单 bit
+
+    // A = curr[3]
+    And16(a=curr, b=0000000000001000, out=aMask);
+    Or16Way(in=aMask, out=A);
+
+    // B = curr[2]
+    And16(a=curr, b=0000000000000100, out=bMask);
+    Or16Way(in=bMask, out=B);
+
+    // C = curr[1]
+    And16(a=curr, b=0000000000000010, out=cMask);
+    Or16Way(in=cMask, out=C);
+
+    // D = curr[0]
+    And16(a=curr, b=0000000000000001, out=dMask);
+    Or16Way(in=dMask, out=D);
 }
 
