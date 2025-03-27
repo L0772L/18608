@@ -3,21 +3,20 @@ CHIP Counter {
     OUT out[16], A, B, C, D;
 
     PARTS:
-    // 用 internalOut 接住 Register 的输出
+    // 中间变量接住 Register 输出
     Register(in=next, out=internalOut, load=true);
 
-    // 将中间输出传给真正的 out
+    // 输出赋给 out[16]
     And16(a=internalOut, b=true, out=out);
 
-    // 加法和逻辑
+    // 计数逻辑
     Inc16(in=internalOut, out=plusOne);
     Mux16(a=internalOut, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 从顶层输出 out[3..0] 提取 A-D
-    And(a=out[3], b=true, out=A);
-    And(a=out[2], b=true, out=B);
-    And(a=out[1], b=true, out=C);
-    And(a=out[0], b=true, out=D);
+    // ✅ 从 internalOut 提取 A~D（合法！）
+    And(a=internalOut[3], b=true, out=A);
+    And(a=internalOut[2], b=true, out=B);
+    And(a=internalOut[1], b=true, out=C);
+    And(a=internalOut[0], b=true, out=D);
 }
-
