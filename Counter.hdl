@@ -3,18 +3,16 @@ CHIP Counter {
     OUT out[16];
 
     PARTS:
-    // 当前值输出为 current
-    Register(in=next, out=current, load=true);
+    // 当前值通过 out 输出
+    Register(in=next, out=out, load=true);
 
     // 加一操作
-    Inc16(in=current, out=plusOne);
+    Inc16(in=out, out=plusOne);
 
     // 根据 inc 决定是否加一
-    Mux16(a=current, b=plusOne, sel=inc, out=maybeInc);
+    Mux16(a=out, b=plusOne, sel=inc, out=maybeInc);
 
     // 根据 reset 决定是否清零
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
-
-    // 输出当前值
-    And16(a=current, b=true, out=out);
 }
+
