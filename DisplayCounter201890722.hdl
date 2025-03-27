@@ -3,19 +3,19 @@ CHIP DisplayCounter201890722 {
     OUT a, b, c, d, e, f, g;
 
     PARTS:
-    // 寄存器存储当前值
+    // 当前计数值输出为 curr
     Register(in=next, out=curr, load=true);
 
-    // 计算加法结果
-    Inc16(in=curr, out=incOut);
+    // 使用 Inc16 实现加1
+    Inc16(in=curr, out=plusOne);
 
-    // 选择是否加1（受 inc 控制）
-    Mux16(a=curr, b=incOut, sel=inc, out=incSel);
+    // 根据 inc 决定是否加1
+    Mux16(a=curr, b=plusOne, sel=inc, out=afterInc);
 
-    // 选择是否重置（受 reset 控制）
-    Mux16(a=incSel, b=false, sel=reset, out=next);
+    // 根据 reset 决定是否清零
+    Mux16(a=afterInc, b=false, sel=reset, out=next);
 
-    // 把低4位传给 decoder
+    // 调用你的 decoder，将低4位送入 A~D
     Decoder201890722(
         A=curr[3], B=curr[2], C=curr[1], D=curr[0],
         a=a, b=b, c=c, d=d, e=e, f=f, g=g
