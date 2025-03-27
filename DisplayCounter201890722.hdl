@@ -3,7 +3,6 @@ CHIP DisplayCounter201890722 {
     OUT a, b, c, d, e, f, g;
 
     PARTS:
-    // 从 Counter 中直接取出 A, B, C, D
     Counter(inc=inc, reset=reset, A=A, B=B, C=C, D=D);
 
     Decoder201890722(

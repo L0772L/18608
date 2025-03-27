@@ -3,15 +3,18 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    Register(in=next, out=current, load=true);
-    Inc16(in=current, out=plusOne);
-    Mux16(a=current, b=plusOne, sel=inc, out=maybeInc);
+    // Register 直接输出到 out[16]
+    Register(in=next, out=out, load=true);
+
+    // 计算加法
+    Inc16(in=out, out=plusOne);
+    Mux16(a=out, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 单独提取低4位
-    And(a=current[3], b=true, out=A);
-    And(a=current[2], b=true, out=B);
-    And(a=current[1], b=true, out=C);
-    And(a=current[0], b=true, out=D);
+    // 从 out 拆出单独的 A, B, C, D（必须从 output pin）
+    And(a=out[3], b=true, out=A);
+    And(a=out[2], b=true, out=B);
+    And(a=out[1], b=true, out=C);
+    And(a=out[0], b=true, out=D);
 }
 
