@@ -1,0 +1,20 @@
+CHIP Const4Bit {
+    OUT a3[16], a2[16], a1[16], a0[16];
+
+    PARTS:
+    // 掩码 1000 -> A3
+    And16(a=false, b=false, out=a3);
+    Or16(a=a3, b[3]=true, out=a3);
+
+    // 掩码 0100 -> A2
+    And16(a=false, b=false, out=a2);
+    Or16(a=a2, b[2]=true, out=a2);
+
+    // 掩码 0010 -> A1
+    And16(a=false, b=false, out=a1);
+    Or16(a=a1, b[1]=true, out=a1);
+
+    // 掩码 0001 -> A0
+    And16(a=false, b=false, out=a0);
+    Or16(a=a0, b[0]=true, out=a0);
+}
