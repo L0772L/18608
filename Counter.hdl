@@ -1,22 +1,19 @@
 CHIP Counter {
     IN inc, reset;
-    OUT A, B, C, D;
+    OUT out[16];
 
     PARTS:
-    // 16-bit 计数器
+    // 当前计数值
     Register(in=next, out=curr, load=load);
 
-    // 加法器
+    // 加1
     Inc16(in=curr, out=plusOne);
     Mux16(a=curr, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // load 控制信号
+    // load 控制
     Or(a=inc, b=reset, out=load);
 
-    // 合法方式提取 A~D（通过 And 获取单 bit）
-    And(a=curr[3], b=true, out=A);
-    And(a=curr[2], b=true, out=B);
-    And(a=curr[1], b=true, out=C);
-    And(a=curr[0], b=true, out=D);
+    // 输出总线
+    And16(a=curr, b=true, out=out);
 }

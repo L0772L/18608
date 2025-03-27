@@ -3,7 +3,13 @@ CHIP DisplayCounter201890722 {
     OUT a, b, c, d, e, f, g;
 
     PARTS:
-    Counter(inc=inc, reset=reset, A=A, B=B, C=C, D=D);
+    Counter(inc=inc, reset=reset, out=out);
+
+    // 从顶层输出 out 中提取位是合法的
+    And(a=out[3], b=true, out=A);
+    And(a=out[2], b=true, out=B);
+    And(a=out[1], b=true, out=C);
+    And(a=out[0], b=true, out=D);
 
     Decoder201890722(
         A=A, B=B, C=C, D=D,
