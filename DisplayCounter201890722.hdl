@@ -1,4 +1,4 @@
-CHIP MultiDisplayCounter201890722 {
+CHIP DisplayCounter201890722 {
     IN inc, reset;
     OUT DigitA[7], DigitB[7];
 
