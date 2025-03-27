@@ -1,40 +1,12 @@
 CHIP Counter {
     IN inc, reset;
-    OUT A, B, C, D;
+    OUT out[16];
 
     PARTS:
-    // 用 Register 存储一个 16-bit 当前值
     Register(in=next, out=curr, load=load);
-
-    // 加法器（+1）
     Inc16(in=curr, out=plusOne);
-
-    // 如果 inc=1，则用加1结果；否则保持原样
     Mux16(a=curr, b=plusOne, sel=inc, out=maybeInc);
-
-    // 如果 reset=1，则清零；否则用 maybeInc
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
-
-    // load 每次都加载（或者 inc | reset）
     Or(a=inc, b=reset, out=load);
-
-    // 提取 A~D（curr 是内部变量，不能 curr[3]，所以用掩码）
-    // 用 And16 提取每个位 + Or16Way 压成单 bit
-
-    // A = curr[3]
-    And16(a=curr, b=0000000000001000, out=aMask);
-    Or16Way(in=aMask, out=A);
-
-    // B = curr[2]
-    And16(a=curr, b=0000000000000100, out=bMask);
-    Or16Way(in=bMask, out=B);
-
-    // C = curr[1]
-    And16(a=curr, b=0000000000000010, out=cMask);
-    Or16Way(in=cMask, out=C);
-
-    // D = curr[0]
-    And16(a=curr, b=0000000000000001, out=dMask);
-    Or16Way(in=dMask, out=D);
 }
 
