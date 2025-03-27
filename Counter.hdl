@@ -3,19 +3,21 @@ CHIP Counter {
     OUT out[16], A, B, C, D;
 
     PARTS:
-    // 合法写法：Register 输出为 out，out 是 CHIP 输出 pin
-    Register(in=next, out=out, load=true);
+    // 使用 internalOut 保存 Register 输出
+    Register(in=next, out=internalOut, load=true);
+
+    // 将其转发给顶层输出 out
+    And16(a=internalOut, b=true, out=out);
 
     // 运算逻辑
-    Inc16(in=out, out=plusOne);
-    Mux16(a=out, b=plusOne, sel=inc, out=maybeInc);
+    Inc16(in=internalOut, out=plusOne);
+    Mux16(a=internalOut, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 从 out 拆出 A~D（out 是顶层输出 pin，合法）
+    // 提取 A~D（只允许对 out 取子位，internalOut 不可以！）
     And(a=out[3], b=true, out=A);
     And(a=out[2], b=true, out=B);
     And(a=out[1], b=true, out=C);
     And(a=out[0], b=true, out=D);
 }
-
 
