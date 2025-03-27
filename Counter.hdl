@@ -3,25 +3,17 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 用 intermediate 存储当前计数值
+    // 寄存器保存当前值
     Register(in=next, out=intermediate, load=true);
 
-    // 加1逻辑
+    // 加法逻辑
     Inc16(in=intermediate, out=plusOne);
     Mux16(a=intermediate, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 提取单个位，避免对任何 bus 做位选
-    // 用 And 和常量构造每个位（选通对应位）
-    And16(a=intermediate, b[0..15]=0000000000000001, out=bitD);
-    And16(a=intermediate, b[0..15]=0000000000000010, out=bitC);
-    And16(a=intermediate, b[0..15]=0000000000000100, out=bitB);
-    And16(a=intermediate, b[0..15]=0000000000001000, out=bitA);
-
-    // 将16位 bus 变为 1 位（仅目标位是1）
-    Or16Way(in=bitA, out=A);
-    Or16Way(in=bitB, out=B);
-    Or16Way(in=bitC, out=C);
-    Or16Way(in=bitD, out=D);
+    // 合法提取 A, B, C, D
+    And(a=intermediate[3], b=true, out=A);
+    And(a=intermediate[2], b=true, out=B);
+    And(a=intermediate[1], b=true, out=C);
+    And(a=intermediate[0], b=true, out=D);
 }
-
