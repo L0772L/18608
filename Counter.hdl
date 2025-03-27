@@ -1,6 +1,6 @@
 CHIP Counter {
     IN inc, reset;
-    OUT out[16];
+    OUT A, B, C, D;
 
     PARTS:
     Register(in=next, out=curr, load=load);
@@ -8,6 +8,15 @@ CHIP Counter {
     Mux16(a=curr, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
     Or(a=inc, b=reset, out=load);
-    And16(a=curr, b=true, out=out);
-}
 
+    // 提取 curr[3:0] —— 使用合法方式：掩码提位
+    And16(a=curr, b=maskA, out=busA);
+    And16(a=curr, b=maskB, out=busB);
+    And16(a=curr, b=maskC, out=busC);
+    And16(a=curr, b=maskD, out=busD);
+
+    Or16Way(in=busA, out=A);
+    Or16Way(in=busB, out=B);
+    Or16Way(in=busC, out=C);
+    Or16Way(in=busD, out=D);
+}
