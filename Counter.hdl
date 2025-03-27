@@ -3,21 +3,21 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 每个寄存器存一个 bit（必须是 1-bit Register）
-    // 只使用单 bit，Register 会自动是 1-bit
-    Register(in=nextA, out=A, load=true);
-    Register(in=nextB, out=B, load=true);
-    Register(in=nextC, out=C, load=true);
-    Register(in=nextD, out=D, load=true);
+    // 使用 Bit 芯片（1-bit Register）来保存单个位
+    Bit(in=nextA, out=A, load=true);
+    Bit(in=nextB, out=B, load=true);
+    Bit(in=nextC, out=C, load=true);
+    Bit(in=nextD, out=D, load=true);
 
-    // 计数逻辑（这里只处理最低位 D，自增 + 复位）
-    // D = D xor inc
+    // 逻辑：
+    // D = D xor inc；reset 为1时置0
     Xor(a=D, b=inc, out=dNext);
     Mux(a=dNext, b=false, sel=reset, out=nextD);
 
-    // 其余位先保持不变（你也可以扩展 full adder 实现完整加法器）
+    // 其余位不变（你可以扩展为完整计数器）
     Mux(a=B, b=false, sel=reset, out=nextB);
     Mux(a=C, b=false, sel=reset, out=nextC);
     Mux(a=A, b=false, sel=reset, out=nextA);
 }
+
 
