@@ -1,19 +1,13 @@
 CHIP Counter {
     IN inc, reset;
-    OUT A, B, C, D;
+    OUT out[16];
 
     PARTS:
     Register(in=next, out=curr, load=load);
-
     Inc16(in=curr, out=plusOne);
     Mux16(a=curr, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
-
     Or(a=inc, b=reset, out=load);
-
-    // 提取 curr[3..0] 用 And 逻辑
-    And(a=curr[3], b=true, out=A);
-    And(a=curr[2], b=true, out=B);
-    And(a=curr[1], b=true, out=C);
-    And(a=curr[0], b=true, out=D);
+    And16(a=curr, b=true, out=out);
 }
+
