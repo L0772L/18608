@@ -1,21 +1,17 @@
 CHIP Counter {
     IN inc, reset;
-    OUT out[16];
+    OUT A, B, C, D;
 
     PARTS:
-    // 中间变量 current 存当前值
     Register(in=next, out=current, load=true);
-
-    // 计算 current + 1
     Inc16(in=current, out=plusOne);
-
-    // 根据 inc 选择是否加1
     Mux16(a=current, b=plusOne, sel=inc, out=maybeInc);
-
-    // 根据 reset 选择是否清零
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 将 current 输出
-    And16(a=current, b=true, out=out);
+    // 单独提取低4位
+    And(a=current[3], b=true, out=A);
+    And(a=current[2], b=true, out=B);
+    And(a=current[1], b=true, out=C);
+    And(a=current[0], b=true, out=D);
 }
 
