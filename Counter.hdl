@@ -3,17 +3,17 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 保存当前 16 位值
+    // 当前 16 位值寄存器
     Register(in=next, out=fullOut, load=true);
 
-    // +1
+    // 加一逻辑
     Inc16(in=fullOut, out=plusOne);
     Mux16(a=fullOut, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 用 Not 和 And 拆位（每个位都用 And 提出单 bit）
-    And(a=fullOut, b[0]=true, out=D);
-    And(a=fullOut, b[1]=true, out=C);
-    And(a=fullOut, b[2]=true, out=B);
-    And(a=fullOut, b[3]=true, out=A);
+    // 提取单个位（通过 Or+false 技巧）
+    Or(a=fullOut[3], b=false, out=A);
+    Or(a=fullOut[2], b=false, out=B);
+    Or(a=fullOut[1], b=false, out=C);
+    Or(a=fullOut[0], b=false, out=D);
 }
