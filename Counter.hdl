@@ -3,21 +3,22 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 使用 Bit 芯片（1-bit Register）来保存单个位
-    Bit(in=nextA, out=A, load=true);
-    Bit(in=nextB, out=B, load=true);
-    Bit(in=nextC, out=C, load=true);
-    Bit(in=nextD, out=D, load=true);
+    // 四个单 bit 的寄存器（用 Bit 芯片）
+    Bit(in=aIn, out=A, load=true);
+    Bit(in=bIn, out=B, load=true);
+    Bit(in=cIn, out=C, load=true);
+    Bit(in=dIn, out=D, load=true);
 
-    // 逻辑：
-    // D = D xor inc；reset 为1时置0
-    Xor(a=D, b=inc, out=dNext);
-    Mux(a=dNext, b=false, sel=reset, out=nextD);
+    // 逻辑：先做 D = D xor inc
+    Xor(a=D, b=inc, out=dXor);
 
-    // 其余位不变（你可以扩展为完整计数器）
-    Mux(a=B, b=false, sel=reset, out=nextB);
-    Mux(a=C, b=false, sel=reset, out=nextC);
-    Mux(a=A, b=false, sel=reset, out=nextA);
+    // 再根据 reset 选择是否清零
+    Mux(a=dXor, b=false, sel=reset, out=dIn);
+
+    // 其他三位保持不变（或将来扩展进位）
+    Mux(a=B, b=false, sel=reset, out=bIn);
+    Mux(a=C, b=false, sel=reset, out=cIn);
+    Mux(a=A, b=false, sel=reset, out=aIn);
 }
 
 
