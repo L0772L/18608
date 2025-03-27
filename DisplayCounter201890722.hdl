@@ -3,13 +3,14 @@ CHIP DisplayCounter201890722 {
     OUT a, b, c, d, e, f, g;
 
     PARTS:
-    // 使用你自己写的 Counter 芯片
+    // 从 Counter 获取 16 位输出
     Counter(in=inc, reset=reset, out=counterOut);
 
-    // 用你的7段译码器显示低4位
+    // 将低4位传给 7 段显示译码器
     Decoder201890722(
         A=counterOut[3], B=counterOut[2],
         C=counterOut[1], D=counterOut[0],
         a=a, b=b, c=c, d=d, e=e, f=f, g=g
     );
 }
+
