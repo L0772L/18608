@@ -1,19 +1,19 @@
 CHIP Counter {
     IN inc, reset;
-    OUT A, B, C, D;
+    OUT out[16], A, B, C, D;
 
     PARTS:
-    // 当前 16 位值寄存器
-    Register(in=next, out=fullOut, load=true);
+    // 把寄存器的输出直接设为顶层 out，便于选位
+    Register(in=next, out=out, load=true);
 
-    // 加一逻辑
-    Inc16(in=fullOut, out=plusOne);
-    Mux16(a=fullOut, b=plusOne, sel=inc, out=maybeInc);
+    // 加1逻辑
+    Inc16(in=out, out=plusOne);
+    Mux16(a=out, b=plusOne, sel=inc, out=maybeInc);
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 提取单个位（通过 Or+false 技巧）
-    Or(a=fullOut[3], b=false, out=A);
-    Or(a=fullOut[2], b=false, out=B);
-    Or(a=fullOut[1], b=false, out=C);
-    Or(a=fullOut[0], b=false, out=D);
+    // 提取低4位 —— 现在 out 是顶层输出，可以安全选位
+    Or(a=out[3], b=false, out=A);
+    Or(a=out[2], b=false, out=B);
+    Or(a=out[1], b=false, out=C);
+    Or(a=out[0], b=false, out=D);
 }
