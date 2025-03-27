@@ -1,32 +1,27 @@
 CHIP Counter {
     IN inc, reset;
-    OUT out[16], A, B, C, D;
+    OUT A, B, C, D;
 
     PARTS:
-    // 当前计数值
-    Register(in=next, out=internalOut, load=true);
-    And16(a=internalOut, b=true, out=out);
+    // 组合当前 4-bit 数值
+    // 用 4-bit 总线：curr
 
-    // 计数逻辑
-    Inc16(in=internalOut, out=plusOne);
-    Mux16(a=internalOut, b=plusOne, sel=inc, out=maybeInc);
+    // 当前值寄存器
+    Register(in=next, out=curr, load=true);
+
+    // 加法器（只对 4-bit）
+    Inc16(in=curr, out=plusOne); // 虽然是 Inc16，我们只用低 4 位
+
+    // 控制是否加1
+    Mux16(a=curr, b=plusOne, sel=inc, out=maybeInc);
+
+    // 控制是否 reset
     Mux16(a=maybeInc, b=false, sel=reset, out=next);
 
-    // 掩码取位：构造掩码，然后提取每个位
-    // 第3位（A）
-    And16(a=internalOut, b=0000000000001000, out=aBus);
-    Or16Way(in=aBus, out=A);
-
-    // 第2位（B）
-    And16(a=internalOut, b=0000000000000100, out=bBus);
-    Or16Way(in=bBus, out=B);
-
-    // 第1位（C）
-    And16(a=internalOut, b=0000000000000010, out=cBus);
-    Or16Way(in=cBus, out=C);
-
-    // 第0位（D）
-    And16(a=internalOut, b=0000000000000001, out=dBus);
-    Or16Way(in=dBus, out=D);
+    // 拆出低 4 位：D = curr[0] ... A = curr[3]
+    And(a=curr[3], b=true, out=A);
+    And(a=curr[2], b=true, out=B);
+    And(a=curr[1], b=true, out=C);
+    And(a=curr[0], b=true, out=D);
 }
 
