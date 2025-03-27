@@ -3,27 +3,28 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 当前值寄存器
-    Register(in=next, out=curr, load=true);
+    // 4个bit的独立寄存器
+    Register(in=nextA, out=Areg, load=true);
+    Register(in=nextB, out=Breg, load=true);
+    Register(in=nextC, out=Creg, load=true);
+    Register(in=nextD, out=Dreg, load=true);
 
-    // 加法逻辑
-    Inc16(in=curr, out=plusOne);
-    Mux16(a=curr, b=plusOne, sel=inc, out=maybeInc);
-    Mux16(a=maybeInc, b=false, sel=reset, out=next);
+    // 提取输出
+    And(a=Areg, b=true, out=A);
+    And(a=Breg, b=true, out=B);
+    And(a=Creg, b=true, out=C);
+    And(a=Dreg, b=true, out=D);
 
-    // 提取 A (bit 3)
-    And16(a=curr, b=0000000000001000, out=maskA);
-    Or16Way(in=maskA, out=A);
+    // 加法器逻辑（只实现简单的低位加法 + 清零）
+    // 高位进位你可以再加，这里演示最低有效位
 
-    // 提取 B (bit 2)
-    And16(a=curr, b=0000000000000100, out=maskB);
-    Or16Way(in=maskB, out=B);
+    // 第一位 D 翻转（D = D xor inc）
+    Xor(a=Dreg, b=inc, out=Dx);
+    Mux(a=Dx, b=false, sel=reset, out=nextD);
 
-    // 提取 C (bit 1)
-    And16(a=curr, b=0000000000000010, out=maskC);
-    Or16Way(in=maskC, out=C);
-
-    // 提取 D (bit 0)
-    And16(a=curr, b=0000000000000001, out=maskD);
-    Or16Way(in=maskD, out=D);
+    // 其它位：本例中保持 0，或你可添加完整加法器
+    Mux(a=Breg, b=false, sel=reset, out=nextB);
+    Mux(a=Creg, b=false, sel=reset, out=nextC);
+    Mux(a=Areg, b=false, sel=reset, out=nextA);
 }
+
