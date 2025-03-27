@@ -3,21 +3,20 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 用 Bit 存储 D 位（最低位）
-    Bit(in=dIn, out=D, load=loadD);
-
-    // 输出其他位为0
+    // 固定输出 0 的高位 A~C
     And(a=false, b=true, out=A);
     And(a=false, b=true, out=B);
     And(a=false, b=true, out=C);
 
-    // D = D xor inc
+    // 用 Bit 存储 D 位（最低位）
+    Bit(in=nextD, out=D, load=loadD);
+
+    // 自增逻辑：D xor inc
     Xor(a=D, b=inc, out=dxor);
 
-    // 如果 reset=1，则输出 false，否则输出 dxor
-    Mux(a=dxor, b=false, sel=reset, out=dIn);
+    // reset 时置 0，否则保持 dxor
+    Mux(a=dxor, b=false, sel=reset, out=nextD);
 
-    // load 始终为 true（每个时钟都更新）
-    And(a=true, b=true, out=loadD);
+    // 始终加载（或者你可以用 inc | reset 来控制）
+    Or(a=inc, b=reset, out=loadD);
 }
-
