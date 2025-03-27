@@ -3,18 +3,10 @@ CHIP Counter {
     OUT out[16];
 
     PARTS:
-    // 计算 load 信号：inc 或 reset
-    Or(a=inc, b=reset, out=loadWire);
-
-    // 当前计数值，存储器
-    Register(in=next, out=out, load=finalLoad);
-
-    // 加法逻辑
-    Inc16(in=out, out=plusOne);
-    Mux16(a=out, b=plusOne, sel=inc, out=maybeInc);
-    Mux16(a=maybeInc, b=false, sel=reset, out=next);
-
-    // 中转 gate 输出，避免报错
-    And(a=loadWire, b=true, out=finalLoad);
+    // 加载输入控制逻辑（全部从 0 开始）
+    Mux16(a=start, b=false, sel=reset, out=forreg);
+    Register(in=forreg, load=true, out=rout);
+    And16(a=rout, b=rout, out=out);
+    Inc16(in=rout, out=incrementedValue);
+    Mux16(a=rout, b=incrementedValue, sel=inc, out=start);
 }
-
