@@ -3,28 +3,21 @@ CHIP Counter {
     OUT A, B, C, D;
 
     PARTS:
-    // 4个bit的独立寄存器
-    Register(in=nextA, out=Areg, load=true);
-    Register(in=nextB, out=Breg, load=true);
-    Register(in=nextC, out=Creg, load=true);
-    Register(in=nextD, out=Dreg, load=true);
+    // 每个寄存器存一个 bit（必须是 1-bit Register）
+    // 只使用单 bit，Register 会自动是 1-bit
+    Register(in=nextA, out=A, load=true);
+    Register(in=nextB, out=B, load=true);
+    Register(in=nextC, out=C, load=true);
+    Register(in=nextD, out=D, load=true);
 
-    // 提取输出
-    And(a=Areg, b=true, out=A);
-    And(a=Breg, b=true, out=B);
-    And(a=Creg, b=true, out=C);
-    And(a=Dreg, b=true, out=D);
+    // 计数逻辑（这里只处理最低位 D，自增 + 复位）
+    // D = D xor inc
+    Xor(a=D, b=inc, out=dNext);
+    Mux(a=dNext, b=false, sel=reset, out=nextD);
 
-    // 加法器逻辑（只实现简单的低位加法 + 清零）
-    // 高位进位你可以再加，这里演示最低有效位
-
-    // 第一位 D 翻转（D = D xor inc）
-    Xor(a=Dreg, b=inc, out=Dx);
-    Mux(a=Dx, b=false, sel=reset, out=nextD);
-
-    // 其它位：本例中保持 0，或你可添加完整加法器
-    Mux(a=Breg, b=false, sel=reset, out=nextB);
-    Mux(a=Creg, b=false, sel=reset, out=nextC);
-    Mux(a=Areg, b=false, sel=reset, out=nextA);
+    // 其余位先保持不变（你也可以扩展 full adder 实现完整加法器）
+    Mux(a=B, b=false, sel=reset, out=nextB);
+    Mux(a=C, b=false, sel=reset, out=nextC);
+    Mux(a=A, b=false, sel=reset, out=nextA);
 }
 
